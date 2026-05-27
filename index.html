@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>중국 위안·미국 달러 한화 계산기</title>
+  <meta name="description" content="중국 위안(CNY)과 미국 달러(USD)를 한화(KRW)로 계산하는 환율 계산기입니다." />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #14213d;
+      --muted: #64748b;
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --border: #dbe4ee;
+      --danger: #b91c1c;
+      --soft: #e6fffb;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #dff7f3 0, var(--bg) 42%, #eef2ff 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 14px;
+    }
+
+    .wrap { width: min(980px, 100%); }
+
+    .title-box { text-align: center; margin-bottom: 18px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.1);
+      color: var(--primary-dark);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(28px, 5vw, 46px);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .sub { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(219, 228, 238, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 34px);
+      backdrop-filter: blur(12px);
+    }
+
+    .currency-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      border: 1.5px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 18px;
+      padding: 14px 12px;
+      cursor: pointer;
+      font-weight: 950;
+      font-size: 16px;
+      transition: background 0.15s ease, border 0.15s ease, transform 0.15s ease;
+    }
+
+    .tab-btn small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .tab-btn.active { border-color: var(--primary); background: var(--soft); color: var(--primary-dark); }
+    .tab-btn:hover { transform: translateY(-1px); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field { display: grid; gap: 8px; }
+
+    label { font-size: 14px; font-weight: 900; color: #334155; }
+
+    .input-wrap { position: relative; }
+
+    .unit {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: 950;
+      color: var(--primary-dark);
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 76px 18px 16px;
+      font-size: clamp(20px, 4vw, 31px);
+      font-weight: 950;
+      color: var(--text);
+      outline: none;
+      background: #fff;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 5px rgba(15, 118, 110, 0.12); }
+
+    .swap {
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--primary);
+      color: white;
+      font-size: 22px;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(15, 118, 110, 0.3);
+      transition: transform 0.15s ease, background 0.15s ease;
+      margin-bottom: 6px;
+    }
+
+    .swap:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    .rate-panel {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 14px;
+    }
+
+    .info-box, .manual-box { border: 1px solid var(--border); border-radius: 20px; padding: 16px; background: #ffffff; }
+
+    .rate-main { font-size: clamp(18px, 3vw, 25px); font-weight: 950; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .rate-sub, .notice { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .notice strong { color: var(--danger); }
+
+    .manual-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 10px; }
+
+    .manual-row input { font-size: 16px; padding: 13px 50px 13px 13px; border-radius: 14px; font-weight: 850; }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      background: #0f172a;
+      color: white;
+      padding: 13px 14px;
+      font-size: 14px;
+      font-weight: 950;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn:hover { opacity: 0.9; }
+
+    .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost { background: var(--soft); color: var(--primary-dark); border: 1px solid #99f6e4; }
+
+    .quick-box { margin-top: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+
+    .quick-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 900;
+      color: #334155;
+    }
+
+    .quick-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+
+    .footer { margin-top: 16px; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    @media (max-width: 720px) {
+      .currency-tabs, .grid, .rate-panel, .quick-box { grid-template-columns: 1fr; }
+      .swap { justify-self: center; transform: rotate(90deg); margin: 2px 0; }
+      .swap:hover { transform: rotate(90deg) translateX(-2px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="title-box">
+      <div class="badge">￥ CNY · $ USD → ₩ KRW</div>
+      <h1>중국 돈·미국 돈 한화 계산기</h1>
+      <p class="sub">중국 위안(CNY)과 미국 달러(USD)를 한국 원화(KRW)로 빠르게 계산합니다.</p>
+    </section>
+
+    <section class="card" aria-label="환율 계산기">
+      <div class="currency-tabs" role="tablist" aria-label="통화 선택">
+        <button class="tab-btn active" type="button" data-currency="CNY">중국 위안 계산<small>CNY ↔ KRW</small></button>
+        <button class="tab-btn" type="button" data-currency="USD">미국 달러 계산<small>USD ↔ KRW</small></button>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label id="foreignLabel" for="foreignInput">중국 위안 입력</label>
+          <div class="input-wrap">
+            <input id="foreignInput" type="text" inputmode="decimal" placeholder="예: 100" autocomplete="off" />
+            <span class="unit" id="foreignUnit">CNY</span>
+          </div>
+        </div>
+
+        <button class="swap" id="swapBtn" type="button" title="입력값 서로 바꾸기">⇄</button>
+
+        <div class="field">
+          <label for="krwInput">한화 입력/결과</label>
+          <div class="input-wrap">
+            <input id="krwInput" type="text" inputmode="decimal" placeholder="자동 계산" autocomplete="off" />
+            <span class="unit">KRW</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-box" aria-label="빠른 금액 입력">
+        <button class="quick-btn" type="button" data-amount="10">10</button>
+        <button class="quick-btn" type="button" data-amount="50">50</button>
+        <button class="quick-btn" type="button" data-amount="100">100</button>
+        <button class="quick-btn" type="button" data-amount="1000">1,000</button>
+      </div>
+
+      <div class="rate-panel">
+        <div class="info-box">
+          <div class="rate-main" id="rateText">환율 불러오는 중...</div>
+          <div class="rate-sub" id="rateSub">무료 환율 API에서 선택 통화 → KRW 기준 환율을 가져옵니다.</div>
+          <div class="actions">
+            <button class="btn" id="refreshBtn" type="button">환율 새로고침</button>
+            <button class="btn ghost" id="clearBtn" type="button">입력 지우기</button>
+          </div>
+        </div>
+
+        <div class="manual-box">
+          <label id="manualRateLabel" for="manualRate">수동 환율 입력</label>
+          <div class="manual-row">
+            <div class="input-wrap">
+              <input id="manualRate" type="text" inputmode="decimal" placeholder="예: 190.50" autocomplete="off" />
+              <span class="unit">원</span>
+            </div>
+            <button class="btn" id="applyManualBtn" type="button">적용</button>
+          </div>
+          <p class="notice" id="manualNotice">API가 안 되거나 실제 환전소 환율을 쓰려면 <strong>1위안당 원화</strong>를 직접 입력하세요.</p>
+        </div>
+      </div>
+
+      <p class="footer" id="footerText">
+        표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const CURRENCY_INFO = {
+      CNY: { nameKo: "중국 위안", symbol: "￥", placeholder: "예: 100", manualExample: "예: 190.50", quick: [10, 50, 100, 1000] },
+      USD: { nameKo: "미국 달러", symbol: "$", placeholder: "예: 100", manualExample: "예: 1350.00", quick: [10, 50, 100, 1000] },
+    };
+
+    const foreignInput = document.getElementById("foreignInput");
+    const krwInput = document.getElementById("krwInput");
+    const manualRateInput = document.getElementById("manualRate");
+    const foreignLabel = document.getElementById("foreignLabel");
+    const foreignUnit = document.getElementById("foreignUnit");
+    const manualRateLabel = document.getElementById("manualRateLabel");
+    const manualNotice = document.getElementById("manualNotice");
+    const rateText = document.getElementById("rateText");
+    const rateSub = document.getElementById("rateSub");
+    const footerText = document.getElementById("footerText");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const swapBtn = document.getElementById("swapBtn");
+    const applyManualBtn = document.getElementById("applyManualBtn");
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const quickButtons = document.querySelectorAll(".quick-btn");
+
+    let selectedCurrency = "CNY";
+    let currentRate = null;
+    let rateDate = "";
+    let rateSource = "api";
+    let lastEdited = "foreign";
+
+    function getCacheKey(currency) { return `${currency.toLowerCase()}-krw-rate-cache-v3`; }
+
+    function getProviders(currency) {
+      return [
+        {
+          name: "Frankfurter v2",
+          url: `https://api.frankfurter.dev/v2/rate/${currency}/KRW`,
+          parse: (data) => ({ rate: Number(data?.rate), date: data?.date || "" }),
+        },
+        {
+          name: "Frankfurter legacy",
+          url: `https://api.frankfurter.app/latest?from=${currency}&to=KRW`,
+          parse: (data) => ({ rate: Number(data?.rates?.KRW), date: data?.date || "" }),
+        },
+        {
+          name: "ExchangeRate-API open",
+          url: `https://open.er-api.com/v6/latest/${currency}`,
+          parse: (data) => ({ rate: Number(data?.rates?.KRW), date: data?.time_last_update_utc || "" }),
+        },
+      ];
+    }
+
+    function parseNumber(value) {
+      const cleaned = String(value).replace(/,/g, "").trim();
+      if (!cleaned) return NaN;
+      return Number(cleaned);
+    }
+
+    function formatNumber(value, maximumFractionDigits = 2) {
+      if (!Number.isFinite(value)) return "";
+      return new Intl.NumberFormat("ko-KR", { maximumFractionDigits }).format(value);
+    }
+
+    function formatKRW(value) {
+      if (!Number.isFinite(value)) return "";
+      return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(Math.round(value));
+    }
+
+    function saveRateToCache(currency, rate, date, source) {
+      localStorage.setItem(getCacheKey(currency), JSON.stringify({ rate, date, source, savedAt: new Date().toISOString() }));
+    }
+
+    function loadRateFromCache(currency) {
+      try {
+        const raw = localStorage.getItem(getCacheKey(currency));
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!Number.isFinite(Number(data.rate))) return null;
+        return { rate: Number(data.rate), date: data.date || "저장된 환율", source: data.source || "저장된 환율" };
+      } catch { return null; }
+    }
+
+    function getManualRate() {
+      const manual = parseNumber(manualRateInput.value);
+      return Number.isFinite(manual) && manual > 0 ? manual : null;
+    }
+
+    function getEffectiveRate() {
+      const manual = getManualRate();
+      if (manual) return manual;
+      return currentRate;
+    }
+
+    function updateCurrencyUI() {
+      const info = CURRENCY_INFO[selectedCurrency];
+      tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.currency === selectedCurrency));
+      foreignLabel.textContent = `${info.nameKo} 입력`;
+      foreignUnit.textContent = selectedCurrency;
+      foreignInput.placeholder = info.placeholder;
+      manualRateInput.placeholder = info.manualExample;
+      manualRateLabel.textContent = `수동 환율 입력 · 1 ${selectedCurrency}당 원화`;
+      manualNotice.innerHTML = `API가 안 되거나 실제 환전소 환율을 쓰려면 <strong>1 ${selectedCurrency}당 원화</strong>를 직접 입력하세요.`;
+      quickButtons.forEach((button, index) => {
+        const amount = info.quick[index];
+        button.dataset.amount = amount;
+        button.textContent = formatNumber(amount, 0);
+      });
+    }
+
+    function updateFooter() {
+      if (rateSource === "ExchangeRate-API open") {
+        footerText.textContent = "표시 금액은 참고용입니다. 환율 데이터 일부는 ExchangeRate-API open endpoint를 사용할 수 있으며 실제 수수료는 반영되지 않습니다.";
+      } else {
+        footerText.textContent = "표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.";
+      }
+    }
+
+    function updateRateDisplay() {
+      const manual = getManualRate();
+      const rate = getEffectiveRate();
+      const info = CURRENCY_INFO[selectedCurrency];
+
+      if (!rate) {
+        rateText.textContent = "환율을 가져오지 못했습니다";
+        rateSub.textContent = `수동 환율에 1 ${selectedCurrency}당 원화 금액을 입력해서 계산하세요.`;
+        updateFooter();
+        return;
+      }
+
+      if (manual) {
+        rateText.textContent = `1 ${selectedCurrency} = ${formatNumber(manual, 4)} KRW`;
+        rateSub.textContent = `${info.nameKo} 수동 입력 환율을 기준으로 계산 중입니다.`;
+      } else {
+        rateText.textContent = `1 ${selectedCurrency} = ${formatNumber(rate, 4)} KRW`;
+        rateSub.textContent = `${rateDate ? rateDate + " 기준 · " : ""}${rateSource === "cache" ? "저장된 환율 사용" : rateSource}`;
+      }
+      updateFooter();
+    }
+
+    function calculateFromForeign() {
+      lastEdited = "foreign";
+      const amount = parseNumber(foreignInput.value);
+      const rate = getEffectiveRate();
+      if (!Number.isFinite(amount) || !rate) {
+        krwInput.value = "";
+        updateRateDisplay();
+        return;
+      }
+      krwInput.value = formatKRW(amount * rate);
+      updateRateDisplay();
+    }
+
+    function calculateFromKRW() {
+      lastEdited = "krw";
+      const amount = parseNumber(krwInput.value);
+      const rate = getEffectiveRate();
+      if (!Number.isFinite(amount) || !rate) {
+        foreignInput.value = "";
+        updateRateDisplay();
+        return;
+      }
+      foreignInput.value = formatNumber(amount / rate, 2);
+      updateRateDisplay();
+    }
+
+    function recalculate() {
+      if (lastEdited === "krw") calculateFromKRW();
+      else calculateFromForeign();
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(url, { signal: controller.signal, headers: { "Accept": "application/json" } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function fetchRate() {
+      rateText.textContent = "환율 불러오는 중...";
+      rateSub.textContent = `${selectedCurrency} → KRW 환율을 가져오고 있습니다.`;
+
+      const errors = [];
+      for (const provider of getProviders(selectedCurrency)) {
+        try {
+          const data = await fetchWithTimeout(provider.url);
+          const parsed = provider.parse(data);
+          if (!Number.isFinite(parsed.rate) || parsed.rate <= 0) throw new Error("환율 데이터 오류");
+
+          currentRate = parsed.rate;
+          rateDate = parsed.date || "";
+          rateSource = provider.name;
+          saveRateToCache(selectedCurrency, currentRate, rateDate, rateSource);
+          recalculate();
+          return;
+        } catch (error) {
+          errors.push(`${provider.name}: ${error.message || error}`);
+        }
+      }
+
+      const cached = loadRateFromCache(selectedCurrency);
+      if (cached) {
+        currentRate = cached.rate;
+        rateDate = cached.date;
+        rateSource = "cache";
+        recalculate();
+      } else {
+        currentRate = null;
+        rateDate = "";
+        rateSource = "manual";
+        updateRateDisplay();
+        console.warn("환율 API 실패", errors);
+      }
+    }
+
+    function changeCurrency(currency) {
+      if (!CURRENCY_INFO[currency] || currency === selectedCurrency) return;
+      selectedCurrency = currency;
+      currentRate = null;
+      rateDate = "";
+      rateSource = "api";
+      manualRateInput.value = "";
+      foreignInput.value = "";
+      krwInput.value = "";
+      lastEdited = "foreign";
+      updateCurrencyUI();
+      fetchRate();
+      foreignInput.focus();
+    }
+
+    foreignInput.addEventListener("input", calculateFromForeign);
+    krwInput.addEventListener("input", calculateFromKRW);
+    manualRateInput.addEventListener("input", recalculate);
+    applyManualBtn.addEventListener("click", recalculate);
+    refreshBtn.addEventListener("click", fetchRate);
+
+    tabButtons.forEach((button) => button.addEventListener("click", () => changeCurrency(button.dataset.currency)));
+
+    quickButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        foreignInput.value = formatNumber(Number(button.dataset.amount), 0);
+        calculateFromForeign();
+        foreignInput.focus();
+      });
+    });
+
+    clearBtn.addEventListener("click", () => {
+      foreignInput.value = "";
+      krwInput.value = "";
+      manualRateInput.value = "";
+      lastEdited = "foreign";
+      updateRateDisplay();
+      foreignInput.focus();
+    });
+
+    swapBtn.addEventListener("click", () => {
+      const foreign = foreignInput.value;
+      const krw = krwInput.value;
+      foreignInput.value = "";
+      krwInput.value = krw || foreign;
+      calculateFromKRW();
+      krwInput.focus();
+    });
+
+    updateCurrencyUI();
+    fetchRate();
+  </script>
+</body>
+</html>
