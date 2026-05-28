@@ -27,7 +27,7 @@
       --border: #d8e7f1;
       --danger: #b91c1c;
       --shadow: 0 20px 50px rgba(6, 78, 130, 0.15);
-      --version: "v1.0.4";
+      --version: "v1.0.5";
     }
 
     * { box-sizing: border-box; }
@@ -83,20 +83,11 @@
       background: linear-gradient(135deg, rgba(0, 168, 121, 0.12), rgba(8, 120, 216, 0.12));
       border: 1px solid rgba(8, 120, 216, 0.20);
       border-radius: 24px;
-      padding: 15px;
+      padding: 16px;
       margin: 0 0 14px;
-      display: grid;
-      grid-template-columns: 54px 1fr;
-      gap: 12px;
-      align-items: center;
+      display: block;
+      text-align: center;
       box-shadow: 0 14px 30px rgba(6, 78, 130, 0.08);
-    }
-
-    .install-card img {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
-      box-shadow: 0 8px 18px rgba(6, 78, 130, 0.18);
     }
 
     .install-title {
@@ -118,6 +109,7 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     .main-card {
@@ -355,8 +347,7 @@
     @media (max-width: 720px) {
       body { padding: 12px 10px 22px; }
       .app-icon { width: 76px; height: 76px; border-radius: 22px; }
-      .install-card { grid-template-columns: 46px 1fr; border-radius: 22px; padding: 13px; }
-      .install-card img { width: 46px; height: 46px; border-radius: 14px; }
+      .install-card { border-radius: 22px; padding: 14px; }
       .tabs { gap: 10px; }
       .tab { min-height: 82px; padding: 15px 8px 13px; border-radius: 20px; }
       .calculator { grid-template-columns: 1fr; }
@@ -454,12 +445,12 @@
       <p class="footer">
         표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
       </p>
-      <div class="version" id="versionText">버전 v1.0.4 · 업데이트 2026.05.28</div>
+      <div class="version" id="versionText">버전 v1.0.5 · 업데이트 2026.05.28</div>
     </section>
   </main>
 
   <script>
-    const APP_VERSION = "v1.0.4";
+    const APP_VERSION = "v1.0.5";
     const UPDATED_AT = "2026.05.28";
 
     const CURRENCIES = {
@@ -532,16 +523,38 @@
       return /iphone|ipad|ipod/i.test(navigator.userAgent);
     }
 
+    function isAndroid() {
+      return /android/i.test(navigator.userAgent);
+    }
+
+    function isStandaloneMode() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
+
+    function openInChromeFromKakao() {
+      const url = new URL(window.location.href);
+      const intentUrl = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.replace(":", "")};package=com.android.chrome;end`;
+      window.location.href = intentUrl;
+    }
+
     function getInstallGuideText() {
+      if (isStandaloneMode()) {
+        installDesc.textContent = "이미 홈 화면 앱처럼 실행 중입니다.";
+        return "이미 홈 화면에 추가된 상태입니다. 다음부터는 휴대폰 바탕화면의 아이콘으로 바로 실행하면 됩니다.";
+      }
+      if (isKakaoBrowser() && isAndroid()) {
+        installDesc.textContent = "카카오톡에서는 먼저 Chrome으로 열어야 설치할 수 있습니다.";
+        return "아래 ‘Chrome에서 열기’ 버튼을 누른 뒤, Chrome 오른쪽 위 ⋮ 메뉴에서 ‘홈 화면에 추가’ 또는 ‘앱 설치’를 선택하세요.";
+      }
       if (isKakaoBrowser()) {
-        installDesc.textContent = "카카오톡에서는 먼저 Chrome 또는 Safari로 열어야 설치할 수 있습니다.";
-        return "카카오톡 화면 오른쪽 아래 ⋮ 메뉴를 누른 뒤, ‘다른 브라우저로 열기’ 또는 ‘Chrome에서 열기’를 선택하세요. 그다음 브라우저 메뉴에서 ‘홈 화면에 추가’ 또는 ‘앱 설치’를 누르면 됩니다.";
+        installDesc.textContent = "카카오톡에서는 먼저 Safari 또는 외부 브라우저로 열어야 설치할 수 있습니다.";
+        return "카카오톡 화면의 공유/더보기 메뉴에서 Safari로 열기 또는 다른 브라우저로 열기를 선택한 뒤, 공유 버튼 → ‘홈 화면에 추가’를 누르세요.";
       }
       if (isIOS()) {
         installDesc.textContent = "아이폰은 Safari 공유 버튼에서 홈 화면에 추가할 수 있습니다.";
-        return "Safari에서 아래쪽 공유 버튼을 누른 뒤 ‘홈 화면에 추가’를 선택하고, 오른쪽 위 ‘추가’를 누르세요.";
+        return "Safari 아래쪽 공유 버튼을 누른 뒤 ‘홈 화면에 추가’를 선택하고, 오른쪽 위 ‘추가’를 누르세요.";
       }
-      return "Chrome 오른쪽 위 ⋮ 메뉴를 누른 뒤 ‘홈 화면에 추가’ 또는 ‘앱 설치’를 선택하세요. 설치 버튼이 바로 뜨면 ‘홈 화면에 추가하기’를 누르면 됩니다.";
+      return "Chrome에서 설치창이 뜨면 ‘설치’ 또는 ‘홈 화면에 추가’를 누르세요. 설치창이 안 뜨면 Chrome 오른쪽 위 ⋮ 메뉴에서 ‘홈 화면에 추가’를 선택하세요.";
     }
 
     function showInstallGuide() {
@@ -549,23 +562,63 @@
       installGuide.classList.add("show");
     }
 
+    function updateInstallButtonState() {
+      if (isStandaloneMode()) {
+        installBtn.textContent = "이미 추가됨";
+        installBtn.disabled = true;
+      } else if (isKakaoBrowser() && isAndroid()) {
+        installBtn.textContent = "Chrome에서 열기";
+        installBtn.disabled = false;
+      } else {
+        installBtn.textContent = "홈 화면에 추가하기";
+        installBtn.disabled = false;
+      }
+    }
+
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
-      installBtn.textContent = "홈 화면에 추가하기";
+      updateInstallButtonState();
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      updateInstallButtonState();
+      installGuide.textContent = "설치가 완료되었습니다. 이제 휴대폰 바탕화면 아이콘으로 실행할 수 있습니다.";
+      installGuide.classList.add("show");
     });
 
     installBtn.addEventListener("click", async () => {
-      if (deferredInstallPrompt && !isKakaoBrowser()) {
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice.catch(() => null);
-        deferredInstallPrompt = null;
-      } else {
+      if (isStandaloneMode()) {
         showInstallGuide();
+        return;
       }
+
+      if (isKakaoBrowser() && isAndroid()) {
+        showInstallGuide();
+        openInChromeFromKakao();
+        return;
+      }
+
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+        deferredInstallPrompt = null;
+        if (choice && choice.outcome === "accepted") {
+          installGuide.textContent = "설치가 진행 중입니다. 설치가 끝나면 바탕화면 아이콘으로 실행하세요.";
+        } else {
+          installGuide.textContent = "설치창을 닫았다면 Chrome 메뉴 ⋮에서 ‘홈 화면에 추가’를 다시 선택할 수 있습니다.";
+        }
+        installGuide.classList.add("show");
+        return;
+      }
+
+      showInstallGuide();
+      alert(getInstallGuideText());
     });
 
     guideBtn.addEventListener("click", showInstallGuide);
+    updateInstallButtonState();
     showInstallGuide();
 
     function parseNumber(value) {
