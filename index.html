@@ -7,10 +7,10 @@
   <meta name="description" content="중국 위안(CNY), 미국 달러(USD)를 한화(KRW)로 계산하는 환율 계산기입니다." />
   <title>원화 환율 계산기</title>
 
-  <link rel="manifest" href="manifest.json?v=1.0.4" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1.0.4" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=1.0.4" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=1.0.4" />
+  <link rel="manifest" href="manifest.json?v=1.0.6" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1.0.6" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=1.0.6" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=1.0.6" />
 
   <style>
     :root {
@@ -27,7 +27,7 @@
       --border: #d8e7f1;
       --danger: #b91c1c;
       --shadow: 0 20px 50px rgba(6, 78, 130, 0.15);
-      --version: "v1.0.5";
+      --version: "v1.0.6";
     }
 
     * { box-sizing: border-box; }
@@ -328,6 +328,8 @@
 
     .install-guide.show { display: block; }
 
+    .install-card.hide { display: none; }
+
     .footer {
       margin-top: 15px;
       text-align: center;
@@ -360,22 +362,19 @@
 <body>
   <main class="wrap">
     <section class="hero">
-      <img class="app-icon" src="icon-512.png?v=1.0.4" alt="원화 환율 계산기 아이콘" />
+      <img class="app-icon" src="icon-512.png?v=1.0.6" alt="원화 환율 계산기 아이콘" />
       <h1>원화 환율 계산기</h1>
       <p class="sub">중국 위안과 미국 달러를 한화로 빠르게 계산합니다.</p>
     </section>
 
-    <section class="install-card" aria-label="홈 화면 추가 안내">
-      <img src="icon-192.png?v=1.0.4" alt="앱 아이콘" />
-      <div>
-        <div class="install-title">휴대폰 바탕화면에 아이콘 추가</div>
-        <div class="install-desc" id="installDesc">자주 쓰는 계산기를 앱처럼 바로 실행할 수 있습니다.</div>
-        <div class="install-actions">
-          <button class="btn green" id="installBtn" type="button">홈 화면에 추가하기</button>
-          <button class="btn soft" id="guideBtn" type="button">설치 방법 보기</button>
-        </div>
-        <div class="install-guide" id="installGuide"></div>
+    <section class="install-card" id="installCard" aria-label="홈 화면 추가 안내">
+      <div class="install-title">휴대폰 바탕화면에 아이콘 추가</div>
+      <div class="install-desc" id="installDesc">자주 쓰는 계산기를 앱처럼 바로 실행할 수 있습니다.</div>
+      <div class="install-actions">
+        <button class="btn green" id="installBtn" type="button">홈 화면에 추가하기</button>
+        <button class="btn soft" id="guideBtn" type="button">설치 방법 보기</button>
       </div>
+      <div class="install-guide" id="installGuide"></div>
     </section>
 
     <section class="main-card" aria-label="환율 계산기">
@@ -445,12 +444,12 @@
       <p class="footer">
         표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
       </p>
-      <div class="version" id="versionText">버전 v1.0.5 · 업데이트 2026.05.28</div>
+      <div class="version" id="versionText">버전 v1.0.6 · 업데이트 2026.05.28</div>
     </section>
   </main>
 
   <script>
-    const APP_VERSION = "v1.0.5";
+    const APP_VERSION = "v1.0.6";
     const UPDATED_AT = "2026.05.28";
 
     const CURRENCIES = {
@@ -460,7 +459,7 @@
         krName: "위안",
         placeholder: "예: 100",
         quick: [10, 50, 100, 1000],
-        cacheKey: "cny-krw-rate-cache-v104",
+        cacheKey: "cny-krw-rate-cache-v106",
         manualHint: "1위안당 원화",
         apis: [
           "https://api.frankfurter.dev/v2/rates?base=CNY&quotes=KRW",
@@ -474,7 +473,7 @@
         krName: "달러",
         placeholder: "예: 100",
         quick: [10, 50, 100, 1000],
-        cacheKey: "usd-krw-rate-cache-v104",
+        cacheKey: "usd-krw-rate-cache-v106",
         manualHint: "1달러당 원화",
         apis: [
           "https://api.frankfurter.dev/v2/rates?base=USD&quotes=KRW",
@@ -500,6 +499,7 @@
     const tabCny = document.getElementById("tabCny");
     const tabUsd = document.getElementById("tabUsd");
     const quickButtons = document.querySelectorAll(".quick-buttons button");
+    const installCard = document.getElementById("installCard");
     const installBtn = document.getElementById("installBtn");
     const guideBtn = document.getElementById("guideBtn");
     const installGuide = document.getElementById("installGuide");
@@ -531,6 +531,11 @@
       return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
     }
 
+    function isHomeScreenLaunch() {
+      const params = new URLSearchParams(window.location.search);
+      return isStandaloneMode() || params.get("app") === "1" || params.get("source") === "pwa";
+    }
+
     function openInChromeFromKakao() {
       const url = new URL(window.location.href);
       const intentUrl = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.replace(":", "")};package=com.android.chrome;end`;
@@ -538,7 +543,7 @@
     }
 
     function getInstallGuideText() {
-      if (isStandaloneMode()) {
+      if (isHomeScreenLaunch()) {
         installDesc.textContent = "이미 홈 화면 앱처럼 실행 중입니다.";
         return "이미 홈 화면에 추가된 상태입니다. 다음부터는 휴대폰 바탕화면의 아이콘으로 바로 실행하면 됩니다.";
       }
@@ -563,13 +568,16 @@
     }
 
     function updateInstallButtonState() {
-      if (isStandaloneMode()) {
+      if (isHomeScreenLaunch()) {
+        installCard.classList.add("hide");
         installBtn.textContent = "이미 추가됨";
         installBtn.disabled = true;
       } else if (isKakaoBrowser() && isAndroid()) {
+        installCard.classList.remove("hide");
         installBtn.textContent = "Chrome에서 열기";
         installBtn.disabled = false;
       } else {
+        installCard.classList.remove("hide");
         installBtn.textContent = "홈 화면에 추가하기";
         installBtn.disabled = false;
       }
@@ -589,8 +597,8 @@
     });
 
     installBtn.addEventListener("click", async () => {
-      if (isStandaloneMode()) {
-        showInstallGuide();
+      if (isHomeScreenLaunch()) {
+        installCard.classList.add("hide");
         return;
       }
 
@@ -619,7 +627,9 @@
 
     guideBtn.addEventListener("click", showInstallGuide);
     updateInstallButtonState();
-    showInstallGuide();
+    if (!isHomeScreenLaunch()) {
+      showInstallGuide();
+    }
 
     function parseNumber(value) {
       const cleaned = String(value).replace(/,/g, "").trim();
@@ -830,7 +840,7 @@
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js?v=1.0.4").catch(() => null);
+        navigator.serviceWorker.register("service-worker.js?v=1.0.6").catch(() => null);
       });
     }
 
