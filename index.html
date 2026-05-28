@@ -362,6 +362,7 @@
       color: #7890a4;
       font-size: 11px;
       font-weight: 800;
+      text-align: center;
     }
 
     @media (max-width: 720px) {
@@ -460,7 +461,7 @@
       </div>
 
       <p class="footer">
-        표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
+        표시 금액은 참고용입니다.<br>은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
       </p>
       <div class="version" id="versionText">버전 v1.0.7 · 업데이트 2026.05.28</div>
     </section>
@@ -532,6 +533,7 @@
     let deferredInstallPrompt = null;
 
     versionText.textContent = `버전 ${APP_VERSION} · 업데이트 ${UPDATED_AT}`;
+    versionText.style.textAlign = "center";
 
     function isKakaoBrowser() {
       return /KAKAOTALK/i.test(navigator.userAgent);
