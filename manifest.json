@@ -1,0 +1,25 @@
+{
+  "name": "중국·미국 돈 한화 계산기",
+  "short_name": "환율 계산기",
+  "description": "중국 위안(CNY)과 미국 달러(USD)를 한국 원화(KRW)로 계산합니다.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff1f7",
+  "theme_color": "#ec4899",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

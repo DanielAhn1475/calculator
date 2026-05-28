@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>중국 위안·미국 달러 한화 계산기</title>
   <meta name="description" content="중국 위안(CNY)과 미국 달러(USD)를 한화(KRW)로 계산하는 환율 계산기입니다." />
+  <meta name="theme-color" content="#ec4899" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="한화계산기" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <style>
     :root {
       --bg: #f4f7fb;
@@ -202,10 +210,91 @@
 
     .footer { margin-top: 16px; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
+    .version {
+      margin: 6px 0 0;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .install-guide {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+      margin: 0 0 16px;
+      padding: 14px;
+      border: 1px solid rgba(236, 72, 153, 0.28);
+      border-radius: 24px;
+      background: rgba(255, 241, 247, 0.9);
+      box-shadow: 0 12px 34px rgba(236, 72, 153, 0.12);
+    }
+
+    .install-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .install-title {
+      margin: 0 0 5px;
+      font-size: 15px;
+      font-weight: 950;
+      color: #9d174d;
+    }
+
+    .install-text {
+      margin: 0;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .install-steps {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .install-steps strong { color: #be185d; }
+
+
     @media (max-width: 720px) {
-      .currency-tabs, .grid, .rate-panel, .quick-box { grid-template-columns: 1fr; }
+      .grid, .rate-panel, .quick-box, .install-guide { grid-template-columns: 1fr; }
+
+      .currency-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .tab-btn {
+        min-height: 90px;
+        padding: 18px 8px;
+        border-radius: 18px;
+        font-size: 20px;
+        line-height: 1.15;
+      }
+
+      .tab-btn small {
+        margin-top: 8px;
+        font-size: 15px;
+        letter-spacing: 0.02em;
+      }
+
+      .install-icon { width: 74px; height: 74px; justify-self: center; }
       .swap { justify-self: center; transform: rotate(90deg); margin: 2px 0; }
       .swap:hover { transform: rotate(90deg) translateX(-2px); }
+    }
+
+    @media (max-width: 380px) {
+      .tab-btn { font-size: 18px; min-height: 84px; }
+      .tab-btn small { font-size: 13px; }
     }
   </style>
 </head>
@@ -217,10 +306,23 @@
       <p class="sub">중국 위안(CNY)과 미국 달러(USD)를 한국 원화(KRW)로 빠르게 계산합니다.</p>
     </section>
 
+    <section class="install-guide" aria-label="휴대폰 바탕화면 아이콘 설치 안내">
+      <img class="install-icon" src="./icon-192.png" alt="한화 계산기 앱 아이콘" />
+      <div>
+        <p class="install-title">휴대폰 바탕화면에 아이콘으로 추가하기</p>
+        <p class="install-text" id="installIntro">카카오톡에서 열었을 때는 브라우저 메뉴를 통해 홈 화면에 추가할 수 있습니다.</p>
+        <ol class="install-steps" id="installSteps">
+          <li>카카오톡 화면 오른쪽 아래 <strong>⋮</strong> 또는 메뉴 버튼을 누릅니다.</li>
+          <li><strong>다른 브라우저로 열기</strong>, <strong>Chrome에서 열기</strong>, 또는 <strong>Safari로 열기</strong>를 선택합니다.</li>
+          <li>브라우저 메뉴에서 <strong>홈 화면에 추가</strong>를 누르면 아이콘이 생성됩니다.</li>
+        </ol>
+      </div>
+    </section>
+
     <section class="card" aria-label="환율 계산기">
       <div class="currency-tabs" role="tablist" aria-label="통화 선택">
-        <button class="tab-btn active" type="button" data-currency="CNY">중국 위안 계산<small>CNY ↔ KRW</small></button>
-        <button class="tab-btn" type="button" data-currency="USD">미국 달러 계산<small>USD ↔ KRW</small></button>
+        <button class="tab-btn active" type="button" data-currency="CNY">중국 위안<small>CNY ↔ KRW</small></button>
+        <button class="tab-btn" type="button" data-currency="USD">미국 달러<small>USD ↔ KRW</small></button>
       </div>
 
       <div class="grid">
@@ -276,10 +378,14 @@
       <p class="footer" id="footerText">
         표시 금액은 참고용입니다. 은행·카드사·환전소 수수료와 매매기준율 차이는 반영되지 않습니다.
       </p>
+      <p class="version" id="versionText"></p>
     </section>
   </main>
 
   <script>
+    const APP_VERSION = "v1.0.2";
+    const UPDATED_AT = "2026.05.28";
+
     const CURRENCY_INFO = {
       CNY: { nameKo: "중국 위안", symbol: "￥", placeholder: "예: 100", manualExample: "예: 190.50", quick: [10, 50, 100, 1000] },
       USD: { nameKo: "미국 달러", symbol: "$", placeholder: "예: 100", manualExample: "예: 1350.00", quick: [10, 50, 100, 1000] },
@@ -295,6 +401,7 @@
     const rateText = document.getElementById("rateText");
     const rateSub = document.getElementById("rateSub");
     const footerText = document.getElementById("footerText");
+    const versionText = document.getElementById("versionText");
     const refreshBtn = document.getElementById("refreshBtn");
     const clearBtn = document.getElementById("clearBtn");
     const swapBtn = document.getElementById("swapBtn");
@@ -546,6 +653,60 @@
       krwInput.focus();
     });
 
+
+
+    function updateInstallGuide() {
+      const intro = document.getElementById("installIntro");
+      const steps = document.getElementById("installSteps");
+      if (!intro || !steps) return;
+
+      const ua = navigator.userAgent || "";
+      const isKakao = /KAKAOTALK/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isAndroid = /Android/i.test(ua);
+
+      if (isKakao && isIOS) {
+        intro.textContent = "카카오톡 안에서 바로 추가가 안 되면 Safari로 연 뒤 홈 화면에 추가하세요.";
+        steps.innerHTML = `
+          <li>카카오톡 화면의 <strong>공유/더보기</strong> 메뉴를 누릅니다.</li>
+          <li><strong>Safari로 열기</strong>를 선택합니다.</li>
+          <li>Safari 하단 <strong>공유 버튼</strong>을 누른 뒤 <strong>홈 화면에 추가</strong>를 선택합니다.</li>
+          <li>이름을 확인하고 <strong>추가</strong>를 누르면 바탕화면에 아이콘이 생깁니다.</li>
+        `;
+      } else if (isKakao && isAndroid) {
+        intro.textContent = "카카오톡 안에서 열렸습니다. Chrome으로 연 뒤 홈 화면에 추가하는 방식이 가장 안정적입니다.";
+        steps.innerHTML = `
+          <li>카카오톡 화면 오른쪽 아래 <strong>⋮</strong> 메뉴를 누릅니다.</li>
+          <li><strong>다른 브라우저로 열기</strong> 또는 <strong>Chrome에서 열기</strong>를 선택합니다.</li>
+          <li>Chrome 오른쪽 위 <strong>⋮</strong> 메뉴를 누릅니다.</li>
+          <li><strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 누릅니다.</li>
+        `;
+      } else if (isIOS) {
+        intro.textContent = "iPhone에서는 Safari의 공유 메뉴에서 홈 화면에 추가할 수 있습니다.";
+        steps.innerHTML = `
+          <li>Safari 하단 <strong>공유 버튼</strong>을 누릅니다.</li>
+          <li><strong>홈 화면에 추가</strong>를 선택합니다.</li>
+          <li>이름을 확인하고 <strong>추가</strong>를 누릅니다.</li>
+        `;
+      } else if (isAndroid) {
+        intro.textContent = "Android에서는 Chrome 메뉴에서 홈 화면에 추가할 수 있습니다.";
+        steps.innerHTML = `
+          <li>Chrome 오른쪽 위 <strong>⋮</strong> 메뉴를 누릅니다.</li>
+          <li><strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택합니다.</li>
+          <li>이름을 확인하고 <strong>추가</strong>를 누릅니다.</li>
+        `;
+      }
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => null);
+      });
+    }
+
+    if (versionText) versionText.textContent = `버전 ${APP_VERSION} · 업데이트 ${UPDATED_AT}`;
+
+    updateInstallGuide();
     updateCurrencyUI();
     fetchRate();
   </script>
